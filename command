@@ -1,0 +1,1 @@
+curl -kv -H "content-type:application/x-www-form-urlencoded" -X POST https://api.pre-prod.parkdots.com/auth/realms/parkingrealm/protocol/openid-connect/token -d 'grant_type=client_credentials&client_id=delta_13&client_secret=145cc61a-d135-4c62-97cc-db39d78b69bd'              
