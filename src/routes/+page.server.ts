@@ -23,13 +23,11 @@ const firebaseConfig = {
 };
 
 const app = initializeApp(firebaseConfig);
-
+const db = getFirestore(app);
+const tokenCollection = collection(db, 'Tokens');
 /** @type {import('./$types').PageServerLoad} */
 export async function load(params: any) {
 
-    const db = getFirestore(app);
-
-    const tokenCollection = collection(db, 'Tokens');
     const tokenSnapshot = await getDocs(tokenCollection);
     const tokenList = tokenSnapshot.docs.map(doc => doc.data());
     let tokens;
@@ -54,5 +52,5 @@ export async function load(params: any) {
     }else{
         tokens = tokenList[0];
     }
-    
+
 }
