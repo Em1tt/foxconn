@@ -3,7 +3,7 @@
 	import axios from 'axios';
 	let mapElement: HTMLDivElement;
 	onMount(async () => {
-		const { map, marker, tileLayer } = await import('leaflet');
+		const { map, tileLayer, circleMarker} = await import('leaflet');
 		const Map = map(mapElement, {
 			maxBounds: [
 				[50.081702, 15.619725],
@@ -17,15 +17,20 @@
 			attribution:
 				'&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
 		}).addTo(Map);
+
 		const res = await axios.get("/api/parking");
 		res.data.forEach((spot: any) => {
-			marker([spot.latitude,spot.longtitude]).addTo(Map);
+			circleMarker([spot.latitude,spot.longitude]).addTo(Map);
 		})
 	});
+	L.markerClusterGroup
 </script>
 
 <div bind:this={mapElement} class="h-screen z-10" />
 
 <style>
     @import 'leaflet/dist/leaflet.css';
+	@import 'leaflet.markercluster/dist/MarkerCluster.css';
+	@import 'leaflet.markercluster/dist/MarkerCluster.Default.css';
+
 </style>
