@@ -23,14 +23,10 @@
 			circleMarker([spot.latitude,spot.longitude]).addTo(Map);
 		})
 	});
-	L.markerClusterGroup
 </script>
 
 <div bind:this={mapElement} class="h-screen z-10" />
 
 <style>
     @import 'leaflet/dist/leaflet.css';
-	@import 'leaflet.markercluster/dist/MarkerCluster.css';
-	@import 'leaflet.markercluster/dist/MarkerCluster.Default.css';
-
 </style>
