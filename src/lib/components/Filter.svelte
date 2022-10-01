@@ -45,5 +45,11 @@
         <div class="flex flex-row items-center mt-2">
             <input on:change={(e) => {toggleMarkers(".idk", "idk")}} type="checkbox" checked id="idk" value="idk" name="idk" class="hidden peer"><label class="checkbox block w-6 h-6 border-4 border-blue rounded-md bg-blue brightness-150 peer-checked:bg-red" for="idk"></label><label for="idk" class="text-white ml-2">Neaktivné</label><br>
         </div>
+        <div class="flex flex-row items-center mt-2">
+            <input on:change={(e) => {toggleMarkers(".reservable", "reservable")}} type="checkbox" checked id="reservable" value="reservable" name="reservable" class="hidden peer"><label class="checkbox block w-6 h-6 border-4 border-blue rounded-md bg-blue brightness-150 peer-checked:bg-red" for="reservable"></label><label for="idk" class="text-white ml-2">Rezervovateľné</label><br>
+        </div>
+        <div class="flex flex-row items-center mt-2">
+            <input on:change={(e) => {toggleMarkers(".reserved", "reserved")}} type="checkbox" checked id="reserved" value="reserved" name="reserved" class="hidden peer"><label class="checkbox block w-6 h-6 border-4 border-blue rounded-md bg-blue brightness-150 peer-checked:bg-red" for="reserved"></label><label for="reserved" class="text-white ml-2">Rezervované</label><br>
+        </div>
     </form>
 </div>

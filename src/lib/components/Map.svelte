@@ -6,6 +6,7 @@
 	let group: any;
 	let markerGroup: any;
 	let lon: number,lat: number;
+	import Swal from "sweetalert2";
 	onMount(async () => {
 		const { map, tileLayer, circleMarker, layerGroup} = await import('leaflet');
 		const Map = map(mapElement, {
@@ -26,14 +27,44 @@
 		async function markers(){
 			markerGroup = layerGroup().addTo(Map);
 			const res = await axios.get("/api/parking");
-		res.data.forEach((spot: any) => {
+		res.data.forEach((spot: any, index: number) => {
+			let markerIsReservable;
+			let markerIsReserved;
+			if(Math.random() * 3 > 2.5) markerIsReservable = true;
+			if(markerIsReservable && Math.random() > 0.5) markerIsReserved = true;
 			circleMarker([spot.latitude,spot.longitude], {
-				color: spot.occupied ? "#c85050" : Date.now() - spot.lastStatusChange > 15724800000 ? "#8c8c8c" : "#64c850",
-				className: spot.occupied ? "occupied hidden" : Date.now() - spot.lastStatusChange > 15724800000 ? "idk" : "vacant"
+				color: spot.occupied ? "#c85050" : Date.now() - spot.lastStatusChange > 15724800000 ? "#8c8c8c" : markerIsReservable ? markerIsReserved ? "#ffe44d" : "#5084c8" : "#50c852",
+				className: spot.occupied ? "occupied hidden" : Date.now() - spot.lastStatusChange > 15724800000 ? "idk" : markerIsReservable ? markerIsReserved ? "reserved" : "reservable" : "vacant"
 			}).bindPopup(`<h2><b>${spot.externalId ? spot.externalId : "Bez-ID"}: ${spot.occupied ? "OBSADENÉ" : Date.now() - spot.lastStatusChange > 15724800000 ? "DLHO NEZMENENÝ STAV - NEZNÁMA SITUÁCIA" : "VOĽNÉ"}</b></h2><br><hr><br><p><b>Naposledy zmenené:</b> ${new Date(spot.lastStatusChange).toLocaleString()}</p><br><sub>${spot.provider} | N ${spot.latitude.toFixed(6)} | W ${spot.longitude.toFixed(6)}</sub>
-			<br><br><a target="_blank" href="https://www.google.com/maps/search/?api=1&query=${spot.latitude}%2C${spot.longitude}" style="border-radius: 6px; background-color: ${spot.occupied ? "#C42021" : Date.now() - spot.lastStatusChange > 15724800000 ? "#8c8c8c" : "#49c420"}; width: 260px !important; padding:5px;color:white;">Naviguj ma</a>`).addTo(markerGroup);
+			<br><br><div class="flex flew-row"><a target="_blank" href="https://www.google.com/maps/search/?api=1&query=${spot.latitude}%2C${spot.longitude}" style="border-radius: 6px; background-color: ${spot.occupied ? "#C42021" : Date.now() - spot.lastStatusChange > 15724800000 ? "#8c8c8c" : "#49c420"}; padding:5px;color:white;">Naviguj ma</a>\
+			${markerIsReservable ? `<button target="_blank" id=tag${index} ${markerIsReserved ? "disabled" : ""} style="${markerIsReserved ? "filter:brightness(0.75);" : ""}margin-left: 4px; border-radius: 6px; background-color: #c8b050; padding:5px;color:white;">Rezervovať - 1€/Hod.</button>` : 
+			'<button target="_blank" disabled style="margin-left: 4px; border-radius: 6px; background-color: #c8b050; padding:5px;color:white; filter:brightness(0.75);">Nedá sa rezervovať</button>'}`).addTo(markerGroup);
 		});
-		//markerGroup.addTo(Map);
+		res.data.forEach((a:any,i:any) => {
+			document.querySelector(`#tag${i}`)?.addEventListener("click", () => {console.log("hi");buyPopup(a.externalId)});
+		})
+		function buyPopup(id: any){
+			console.log("test");
+			Swal.fire({
+				title: `Rezervovať lístok - ${id}`,
+				text: "Týmto si rezervujete lístok v meste Pardubice. Zadajte, na koľko hodín si chcete miesto rezervovať.",
+				input: "number",
+				showCancelButton: true,
+			}).then(result => {
+				if(result.isConfirmed){
+					Swal.fire({
+						title:"Lístok bol rezervovaný",
+						icon: "success"
+					});
+				};
+				if(result.isDenied){
+					Swal.fire({
+						title: "Storno operácie",
+						icon: "error"
+					})
+				}
+			})
+		};
 		}
 		markers()
 		if(!navigator.geolocation) document.querySelector("#getGeo")?.remove();
