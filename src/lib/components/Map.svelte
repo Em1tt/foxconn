@@ -4,9 +4,10 @@
 	let mapElement: HTMLDivElement;
 	let mapp: any;
 	let group: any;
+	let markerGroup: any;
 	let lon: number,lat: number;
 	onMount(async () => {
-		const { map, tileLayer, circleMarker, marker} = await import('leaflet');
+		const { map, tileLayer, circleMarker, layerGroup} = await import('leaflet');
 		const Map = map(mapElement, {
 			maxBounds: [
 				[50.081702, 15.619725],
@@ -22,15 +23,23 @@
 				'&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
 		}).addTo(Map);
 
-		
-		const res = await axios.get("/api/parking");
+		async function markers(){
+			markerGroup = layerGroup();
+			const res = await axios.get("/api/parking");
 		res.data.forEach((spot: any) => {
 			circleMarker([spot.latitude,spot.longitude], {
 				color: spot.occupied ? "#c85050" : Date.now() - spot.lastStatusChange > 15724800000 ? "#8c8c8c" : "#64c850",
 				className: spot.occupied ? "occupied hidden" : Date.now() - spot.lastStatusChange > 15724800000 ? "idk" : "vacant"
 			}).bindPopup(`<h2><b>${spot.externalId ? spot.externalId : "Bez-ID"}: ${spot.occupied ? "OBSADENÉ" : Date.now() - spot.lastStatusChange > 15724800000 ? "DLHO NEZMENENÝ STAV - NEZNÁMA SITUÁCIA" : "VOĽNÉ"}</b></h2><br><hr><br><p><b>Naposledy zmenené:</b> ${new Date(spot.lastStatusChange).toLocaleString()}</p><br><sub>${spot.provider} | N ${spot.latitude.toFixed(6)} | W ${spot.longitude.toFixed(6)}</sub>
-			<br><br><a target="_blank" href="https://www.google.com/maps/search/?api=1&query=${spot.latitude}%2C${spot.longitude}" style="border-radius: 6px; background-color: ${spot.occupied ? "#C42021" : Date.now() - spot.lastStatusChange > 15724800000 ? "#8c8c8c" : "#49c420"}; width: 260px !important; padding:5px;color:white;">Naviguj ma</a>`).addTo(Map);
+			<br><br><a target="_blank" href="https://www.google.com/maps/search/?api=1&query=${spot.latitude}%2C${spot.longitude}" style="border-radius: 6px; background-color: ${spot.occupied ? "#C42021" : Date.now() - spot.lastStatusChange > 15724800000 ? "#8c8c8c" : "#49c420"}; width: 260px !important; padding:5px;color:white;">Naviguj ma</a>`).addTo(markerGroup);
 		});
+		markerGroup.addTo(Map);
+		}
+		markers()
+		setInterval(()=>{
+			console.log("REFRESHED");
+			markers();
+		},5000);
 		if(!navigator.geolocation) document.querySelector("#getGeo")?.remove();
 	});
 	let started: boolean;
