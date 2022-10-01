@@ -20,6 +20,7 @@
 
 		const res = await axios.get("/api/parking");
 		res.data.forEach((spot: any) => {
+			console.log(spot)
 			circleMarker([spot.latitude,spot.longitude]).addTo(Map);
 		})
 	});
