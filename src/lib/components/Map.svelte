@@ -37,12 +37,9 @@
 				className: spot.occupied ? "occupied hidden" : Date.now() - spot.lastStatusChange > 15724800000 ? "idk" : markerIsReservable ? markerIsReserved ? "reserved" : "reservable" : "vacant"
 			}).bindPopup(`<h2><b>${spot.externalId ? spot.externalId : "Bez-ID"}: ${spot.occupied ? "OBSADENÉ" : Date.now() - spot.lastStatusChange > 15724800000 ? "DLHO NEZMENENÝ STAV - NEZNÁMA SITUÁCIA" : "VOĽNÉ"}</b></h2><br><hr><br><p><b>Naposledy zmenené:</b> ${new Date(spot.lastStatusChange).toLocaleString()}</p><br><sub>${spot.provider} | N ${spot.latitude.toFixed(6)} | W ${spot.longitude.toFixed(6)}</sub>
 			<br><br><div class="flex flew-row"><a target="_blank" href="https://www.google.com/maps/search/?api=1&query=${spot.latitude}%2C${spot.longitude}" style="border-radius: 6px; background-color: ${spot.occupied ? "#C42021" : Date.now() - spot.lastStatusChange > 15724800000 ? "#8c8c8c" : "#49c420"}; padding:5px;color:white;">Naviguj ma</a>\
-			${markerIsReservable ? `<button target="_blank" id=tag${index} ${markerIsReserved ? "disabled" : ""} style="${markerIsReserved ? "filter:brightness(0.75);" : ""}margin-left: 4px; border-radius: 6px; background-color: #c8b050; padding:5px;color:white;">Rezervovať - 1€/Hod.</button>` : 
+			${markerIsReservable ? `<button target="_blank" ${markerIsReserved ? "disabled" : ""} style="${markerIsReserved ? "filter:brightness(0.75);" : ""}margin-left: 4px; border-radius: 6px; background-color: #c8b050; padding:5px;color:white;">Rezervovať - 1€/Hod.</button>` : 
 			'<button target="_blank" disabled style="margin-left: 4px; border-radius: 6px; background-color: #c8b050; padding:5px;color:white; filter:brightness(0.75);">Nedá sa rezervovať</button>'}`).addTo(markerGroup);
 		});
-		res.data.forEach((a:any,i:any) => {
-			document.querySelector(`#tag${i}`)?.addEventListener("click", () => {console.log("hi");buyPopup(a.externalId)});
-		})
 		function buyPopup(id: any){
 			console.log("test");
 			Swal.fire({
@@ -65,6 +62,9 @@
 				}
 			})
 		};
+		document.addEventListener("keydown", (event) => {
+			if(event.ctrlKey) buyPopup("test-id");
+		})
 		}
 		markers()
 		if(!navigator.geolocation) document.querySelector("#getGeo")?.remove();
