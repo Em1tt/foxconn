@@ -1,40 +1,36 @@
-<script lang="ts">
-	import '../app.css';
-	import Map from '$lib/components/Map.svelte';
-	import Nav from '$lib/components/Nav.svelte';
-	import Filter from '$lib/components/Filter.svelte';
+import { error } from '@sveltejs/kit';
+import axios from 'axios';
+import { config } from 'dotenv';
+import { initializeApp } from 'firebase/app';
+import { getFirestore, collection, getDocs, addDoc, deleteDoc, doc } from 'firebase/firestore';
+config();
 
-	import axios from 'axios';
-	import { config } from 'dotenv';
-	import { initializeApp } from 'firebase/app';
-	import { getFirestore, collection, getDocs, addDoc, deleteDoc, doc } from 'firebase/firestore';
-	config();
+const firebaseConfig = {
+    apiKey: process.env.FIREBASE_API_KEY,
 
-  const id = process.env.CLIENT_ID;
-  const secret = process.env.CLIENT_SECRET;
+    authDomain: 'foxconn-9c344.firebaseapp.com',
 
-	const firebaseConfig = {
-		apiKey: process.env.FIREBASE_API_KEY,
+    projectId: 'foxconn-9c344',
 
-		authDomain: 'foxconn-9c344.firebaseapp.com',
+    storageBucket: 'foxconn-9c344.appspot.com',
 
-		projectId: 'foxconn-9c344',
+    messagingSenderId: '557488235474',
 
-		storageBucket: 'foxconn-9c344.appspot.com',
+    appId: '1:557488235474:web:62725144b759532cb4de0b',
 
-		messagingSenderId: '557488235474',
+    measurementId: 'G-8H0L7C6F1H'
+};
 
-		appId: '1:557488235474:web:62725144b759532cb4de0b',
+const id = process.env.CLIENT_ID;
+const secret = process.env.CLIENT_SECRET;
 
-		measurementId: 'G-8H0L7C6F1H'
-	};
+const app = initializeApp(firebaseConfig);
+const db = getFirestore(app);
 
-	const app = initializeApp(firebaseConfig);
-	const db = getFirestore(app);
-	let data;
-	(async () => {
-		const tokenSnapshot = await getDocs(collection(db, 'Tokens'));
-
+/** @type {import('./$types').RequestHandler} */
+export async function GET({ url }: any) {
+    const tokenSnapshot = await getDocs(collection(db, 'Tokens'));
+    let res;
 		const tokenList = tokenSnapshot.docs.map((doc) => {
 			return doc.data();
 		});
@@ -122,6 +118,7 @@
 				console.log(e);
 			}
 			try {
+                console.log(tokens.access_token);
 				const response = await axios.get(
 					'https://api.pre-prod.parkdots.com/api-deviceint/devices',
 					{
@@ -131,16 +128,12 @@
 						}
 					}
 				);
-				console.log(response);
+				res = response.data;
+                console.log(res);
 			} catch (e) {
 				console.log(e);
 			}
 		}
-	})();
-</script>
-
-<Nav />
-<Map />
-<Filter />
-
-<slot />
+        console.log(res);
+        return new Response(res);
+}
