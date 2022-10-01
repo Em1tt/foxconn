@@ -24,7 +24,7 @@
 		}).addTo(Map);
 
 		async function markers(){
-			markerGroup = layerGroup();
+			markerGroup = layerGroup().addTo(Map);
 			const res = await axios.get("/api/parking");
 		res.data.forEach((spot: any) => {
 			circleMarker([spot.latitude,spot.longitude], {
@@ -33,13 +33,9 @@
 			}).bindPopup(`<h2><b>${spot.externalId ? spot.externalId : "Bez-ID"}: ${spot.occupied ? "OBSADENÉ" : Date.now() - spot.lastStatusChange > 15724800000 ? "DLHO NEZMENENÝ STAV - NEZNÁMA SITUÁCIA" : "VOĽNÉ"}</b></h2><br><hr><br><p><b>Naposledy zmenené:</b> ${new Date(spot.lastStatusChange).toLocaleString()}</p><br><sub>${spot.provider} | N ${spot.latitude.toFixed(6)} | W ${spot.longitude.toFixed(6)}</sub>
 			<br><br><a target="_blank" href="https://www.google.com/maps/search/?api=1&query=${spot.latitude}%2C${spot.longitude}" style="border-radius: 6px; background-color: ${spot.occupied ? "#C42021" : Date.now() - spot.lastStatusChange > 15724800000 ? "#8c8c8c" : "#49c420"}; width: 260px !important; padding:5px;color:white;">Naviguj ma</a>`).addTo(markerGroup);
 		});
-		markerGroup.addTo(Map);
+		//markerGroup.addTo(Map);
 		}
 		markers()
-		setInterval(()=>{
-			console.log("REFRESHED");
-			markers();
-		},5000);
 		if(!navigator.geolocation) document.querySelector("#getGeo")?.remove();
 	});
 	let started: boolean;
