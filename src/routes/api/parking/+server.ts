@@ -30,7 +30,6 @@ const db = getFirestore(app);
 /** @type {import('./$types').RequestHandler} */
 export async function GET({ url }: any) {
     const tokenSnapshot = await getDocs(collection(db, 'Tokens'));
-    let res;
 		const tokenList = tokenSnapshot.docs.map((doc) => {
 			return doc.data();
 		});
@@ -89,6 +88,7 @@ export async function GET({ url }: any) {
 				addDoc(collection(db, 'Tokens'), tokenData);
 				tokens = tokenData;
 			} catch (e) {
+                console.log("hi");
 				console.log(e);
 			}
 		}
@@ -115,25 +115,35 @@ export async function GET({ url }: any) {
 				addDoc(collection(db, 'Tokens'), tokenData);
 				tokens = tokenData;
 			} catch (e) {
-				console.log(e);
-			}
-			try {
-                console.log(tokens.access_token);
-				const response = await axios.get(
-					'https://api.pre-prod.parkdots.com/api-deviceint/devices',
-					{
-						headers: {
-							Accept: 'application/json',
-							authorization: `Bearer ${tokens.access_token}`
-						}
-					}
-				);
-				res = response.data;
-                console.log(res);
-			} catch (e) {
+                console.log("hello");
+
 				console.log(e);
 			}
 		}
-        console.log(res);
-        return new Response(res);
+        try {
+            const parkingSnapshot = await getDocs(collection(db, 'Parking'));
+            const parkingList = parkingSnapshot.docs.map((doc) => {
+                return doc.data();
+            });
+            if(!parkingList[0] || Date.now() - parkingList[0].last_update > 60000){
+                const response = await axios.get(
+                    'https://api.pre-prod.parkdots.com/api-deviceint/devices',
+                    {
+                        headers: {
+                            Accept: 'application/json',
+                            authorization: `Bearer ${tokens.access_token}`
+                        }
+                    }
+                );
+                parkingSnapshot.docs.map((docc) => {
+					deleteDoc(doc(db, 'Parking', docc.id));
+				});
+                addDoc(collection(db, "Parking"), {data: response.data, last_update: Date.now()});
+                return new Response(JSON.stringify(response.data));
+            }else{
+                return new Response(JSON.stringify(parkingList[0].data));
+            }
+        } catch (e) {
+            console.log(e);
+        }
 }

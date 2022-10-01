@@ -1,5 +1,6 @@
 <script lang="ts">
 	import { onMount } from 'svelte';
+	import axios from 'axios';
 	let mapElement: HTMLDivElement;
 	onMount(async () => {
 		const { map, marker, tileLayer } = await import('leaflet');
@@ -16,6 +17,10 @@
 			attribution:
 				'&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
 		}).addTo(Map);
+		const res = await axios.get("/api/parking");
+		res.data.forEach((spot: any) => {
+			marker([spot.latitude,spot.longtitude]).addTo(Map);
+		})
 	});
 </script>
 
