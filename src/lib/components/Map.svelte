@@ -4,6 +4,7 @@
 	let mapElement: HTMLDivElement;
 	let mapp: any;
 	let group: any;
+	let lon: number,lat: number;
 	onMount(async () => {
 		const { map, tileLayer, circleMarker, marker} = await import('leaflet');
 		const Map = map(mapElement, {
@@ -35,16 +36,20 @@
 	let started: boolean;
 	function getLocation() {
   			try{
-				if(started) return;
-				const interval = setInterval(()=>{
+				if(started){
+					mapp.setView([lat,lon], 17);
+				}else{
+					const interval = setInterval(()=>{
 					navigator.geolocation.getCurrentPosition(data=>{renderLocation(data)}, ()=>{clearInterval(interval)});
 				},5000);
+				}
 			}catch(e){
 				console.log(e);
 			}
 		};
 		async function renderLocation(data: any){
 			started = true;
+			lon=data.coords.longitude;lat=data.coords.latitude;
 			const { marker, layerGroup } = await import('leaflet');
 			if(group) group.remove();
 			group = layerGroup().addLayer(marker([data.coords.latitude, data.coords.longitude])).addTo(mapp);
