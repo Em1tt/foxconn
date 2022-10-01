@@ -19,7 +19,7 @@
 		}).addTo(Map);
 
 		const res = await axios.get("/api/parking");
-		res.data.forEach((spot: any) => {
+		res.data.filter((i: any) => !i.occupied)forEach((spot: any) => {
 			console.log(spot)
 			circleMarker([spot.latitude,spot.longitude]).addTo(Map);
 		})
